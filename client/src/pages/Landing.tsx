@@ -93,10 +93,10 @@ export default function Landing() {
               See all add-ons
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
-            {items.map((g) => (
+          <div className="marquee-track">
+            {[...items, ...items].map((g, i) => (
               <article
-                key={g.id}
+                key={g.id + "-" + i}
                 role="button"
                 tabIndex={0}
                 onClick={() => setSelected(g)}
