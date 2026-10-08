@@ -93,7 +93,7 @@ export default function Landing() {
               See all add-ons
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
             {items.map((g) => (
               <article
                 key={g.id}
@@ -101,15 +101,15 @@ export default function Landing() {
                 tabIndex={0}
                 onClick={() => setSelected(g)}
                 onKeyDown={(e) => e.key === "Enter" && setSelected(g)}
-                className="card !p-3 cursor-pointer transition hover:-translate-y-1 hover:shadow-card"
+                className="group card cursor-pointer overflow-hidden !p-0 transition hover:-translate-y-1 hover:shadow-card"
               >
                 <Thumb
                   src={equipmentImage(g)}
                   alt={g.name}
-                  className="aspect-square w-full rounded-lg"
+                  className="aspect-[4/3] w-full rounded-none transition duration-300 group-hover:scale-105"
                 />
-                <p className="mt-3 truncate text-lg font-bold">{g.name}</p>
-                <p className="text-sm text-ink-500">
+                <p className="px-4 pt-4 truncate text-lg font-bold">{g.name}</p>
+                <p className="px-4 pb-4 text-sm font-semibold text-brand-700">
                   {peso(g.fee)} per booking
                 </p>
               </article>
