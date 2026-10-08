@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 import StudioCarousel from "../components/StudioCarousel";
@@ -32,6 +33,7 @@ export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<Equipment | null>(null);
+
   const rent = (g: Equipment) => {
     const target = `/bookings/new?equipment=${g.id}`;
     if (!user) {
@@ -108,61 +110,66 @@ export default function Landing() {
                   alt={g.name}
                   className="aspect-[4/3] w-full rounded-none transition duration-300 group-hover:scale-105"
                 />
-                <p className="px-4 pt-4 truncate text-lg font-bold">{g.name}</p>
-                <p className="px-4 pb-4 text-sm font-semibold text-brand-700">
-                  {peso(g.fee)} per booking
-                </p>
+                {/* name + price band: change bg-brand-900 to bg-brand-50 for a light version */}
+                <div className="bg-brand-900 px-4 py-4">
+                  <p className="truncate text-lg font-bold text-white">
+                    {g.name}
+                  </p>
+                  <p className="text-sm font-semibold text-spot-400">
+                    {peso(g.fee)} per booking
+                  </p>
+                </div>
               </article>
             ))}
           </div>
         </section>
       )}
-      {selected && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-          onClick={() => setSelected(null)}
-        >
+      {selected &&
+        createPortal(
           <div
-            className="card relative w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-[9999] flex overflow-y-auto bg-brand-900/70 p-4 backdrop-blur-sm"
+            onClick={() => setSelected(null)}
           >
-            <button
-              onClick={() => setSelected(null)}
-              className="absolute right-3 top-3 text-2xl leading-none text-ink-500"
-              aria-label="Close"
+            <div
+              className="card relative m-auto w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
             >
-              ×
-            </button>
-            <Thumb
-              src={equipmentImage(selected)}
-              alt={selected.name}
-              className="aspect-video w-full rounded-lg"
-            />
-            <h3 className="mt-4 text-3xl font-extrabold">{selected.name}</h3>
-            <p className="mt-1 text-ink-500">
-              <span className="rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">
+              <button
+                onClick={() => setSelected(null)}
+                className="absolute right-3 top-3 text-2xl leading-none text-ink-500"
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <Thumb
+                src={equipmentImage(selected)}
+                alt={selected.name}
+                className="aspect-video w-full rounded-lg"
+              />
+              <h3 className="mt-4 text-3xl font-extrabold">{selected.name}</h3>
+              <p className="mt-1 text-ink-500">
                 <span className="rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">
                   {peso(selected.fee)} per booking
                 </span>
-              </span>
-            </p>
-            <div className="mt-6 flex gap-3">
-              <button
-                onClick={() => rent(selected)}
-                className="btn btn-spot flex-1 py-3"
-              >
-                Rent
-              </button>
-              <button
-                onClick={() => setSelected(null)}
-                className="btn btn-ghost py-3"
-              >
-                Close
-              </button>
+              </p>
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => rent(selected)}
+                  className="btn btn-spot flex-1 py-3"
+                >
+                  Rent
+                </button>
+                <button
+                  onClick={() => setSelected(null)}
+                  className="btn btn-ghost py-3"
+                >
+                  Close
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
       <FeedbackSection />
     </div>
   );
