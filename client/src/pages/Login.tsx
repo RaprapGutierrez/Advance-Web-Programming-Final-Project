@@ -1,6 +1,6 @@
 // src/pages/Login.tsx
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Field } from "../components/ui";
 import { useAuth, type Role } from "../lib/auth";
 
@@ -8,7 +8,9 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function Login() {
   const { loginAs } = useAuth();
-  const navigate = useNavigate();
+const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,7 +40,9 @@ export default function Login() {
 
       const role = data.user.role as Role;
       loginAs(role, { id: data.user.id, name: data.user.name });
-      navigate(role === "owner" ? "/dashboard" : "/studios", { replace: true });
+    navigate(from ?? (role === "owner" ? "/dashboard" : "/studios"), {
+        replace: true,
+      });
     } catch {
       setError("Cannot reach the server. Is it running on port 5000?");
     } finally {

@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../lib/auth";
 import StudioCarousel from "../components/StudioCarousel";
 import FeedbackSection from "../components/FeedbackSection";
 import Thumb from "../components/Thumb";
@@ -26,8 +28,22 @@ const features = [
 
 export default function Landing() {
   const gear = useFetch<Equipment[]>("/equipment");
-  const items = gear.data?.slice(0, 8) ?? [];
+   const items = gear.data?.slice(0, 8) ?? [];
+  const { user } = useAuth();
+   const navigate = useNavigate();
+  const [selected, setSelected] = useState<Equipment | null>(null);
+  const rent = (g: Equipment) => {
+    const target = `/bookings/new?equipment=${g.id}`;
+    if (!user) {
+      // not logged in: go to login, then come back to booking
+      navigate("/login", { state: { from: target } });
+    } else {
+      navigate(target);
+    }
+  };
+
   return (
+
     <div className="space-y-16 sm:space-y-24">
       <section className="grid items-center gap-10 lg:grid-cols-2">
         <div>
@@ -74,8 +90,14 @@ export default function Landing() {
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {items.map((g) => (
-              <article key={g.id} className="card !p-3">
-                <Thumb
+           <article
+                key={g.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelected(g)}
+                onKeyDown={(e) => e.key === "Enter" && setSelected(g)}
+                className="card !p-3 cursor-pointer transition hover:-translate-y-1"
+              >                <Thumb
                   src={equipmentImage(g)}
                   alt={g.name}
                   className="aspect-square w-full rounded-lg"
@@ -89,7 +111,50 @@ export default function Landing() {
           </div>
         </section>
       )}
+      {selected && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setSelected(null)}
+        >
+          <div
+            className="card relative w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelected(null)}
+              className="absolute right-3 top-3 text-2xl leading-none text-ink-500"
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <Thumb
+              src={equipmentImage(selected)}
+              alt={selected.name}
+              className="aspect-video w-full rounded-lg"
+            />
+            <h3 className="mt-4 text-2xl font-bold">{selected.name}</h3>
+            <p className="mt-1 text-ink-500">
+              {peso(selected.fee)} per booking
+            </p>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => rent(selected)}
+                className="btn btn-spot flex-1 py-3"
+              >
+                Rent
+              </button>
+              <button
+                onClick={() => setSelected(null)}
+                className="btn btn-ghost py-3"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <FeedbackSection />
+
     </div>
   );
 }
