@@ -8,7 +8,7 @@ export default function SlotGrid({ slots, onPick }: { slots: Slot[]; onPick?: (h
       {slots.map((s) => (
         <li key={s.hour}>
           {s.booked ? (
-            <div className="rounded-lg border border-brand-100 bg-[repeating-linear-gradient(135deg,#eeebff,#eeebff_6px,#e3deff_6px,#e3deff_12px)] p-3 text-sm">
+            <div className="rounded-lg border border-brand-100 bg-[repeating-linear-gradient(135deg,#f6eef8,#f6eef8_6px,#e3deff_6px,#e3deff_12px)] p-3 text-sm">
               <p className="font-bold text-brand-700">{hourLabel(s.hour)}</p>
               <p className="truncate text-xs text-brand-700">{s.renterName ?? 'Booked'}</p>
             </div>
