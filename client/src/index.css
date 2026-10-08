@@ -3,27 +3,37 @@
 @theme {
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Sora", "DM Sans", ui-sans-serif, sans-serif;
-  --color-haze: #f4f2fb;
-  --color-line: #e0dcf0;
-  --color-ink-900: #1c1a33;
-  --color-ink-500: #5d5a78;
-  --color-ink-300: #9a97b3;
-  --color-brand-50: #eeebff;
-  --color-brand-100: #d9d3ff;
-  --color-brand-500: #6a5cf0;
-  --color-brand-600: #5445d6;
-  --color-brand-700: #4333b3;
-  --color-brand-900: #231c63;
-  --color-spot-300: #ffc86b;
-  --color-spot-400: #ffb02e;
-  --color-spot-500: #f59e0b;
-  --color-alert-100: #ffe1ea;
-  --color-alert-600: #d6336c;
-  --color-alert-700: #b0255a;
+
+  /* neutrals (light tints of the purple) */
+  --color-haze: #f7f2f9;
+  --color-line: #e8dcee;
+  --color-ink-900: #2a2440;
+  --color-ink-500: #665f80;
+  --color-ink-300: #a39db8;
+
+  /* brand: purple #7C4585, dark #3D365C */
+  --color-brand-50: #f6eef8;
+  --color-brand-100: #ead6ee;
+  --color-brand-500: #96579f;
+  --color-brand-600: #7c4585;
+  --color-brand-700: #653870;
+  --color-brand-900: #3d365c;
+
+  /* spot: orange #F8B55F */
+  --color-spot-300: #fbd197;
+  --color-spot-400: #f8b55f;
+  --color-spot-500: #e9a04a;
+
+  /* alert: pink #C95792 */
+  --color-alert-100: #fbe3ee;
+  --color-alert-600: #c95792;
+  --color-alert-700: #a8467a;
+
   --color-ok-100: #dcf5e7;
   --color-ok-600: #12805c;
+
   --shadow-card:
-    0 1px 2px rgb(28 26 51 / 0.05), 0 12px 30px -16px rgb(28 26 51 / 0.22);
+    0 1px 2px rgb(61 54 92 / 0.05), 0 12px 30px -16px rgb(61 54 92 / 0.25);
 }
 
 @layer base {
@@ -67,35 +77,6 @@
   }
 }
 
-.marquee-track {
-  display: flex;
-  width: max-content;
-  animation: marquee-scroll 35s linear infinite;
-}
-.marquee-track:hover {
-  animation-play-state: paused;
-}
-.marquee-track > article {
-  width: 16rem;
-  flex-shrink: 0;
-  margin-right: 1.25rem;
-}
-section:has(> .marquee-track) {
-  overflow: hidden;
-}
-@keyframes marquee-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track {
-    animation: none;
-  }
-}
 .marquee-track {
   display: flex;
   width: max-content;
