@@ -9,6 +9,7 @@ import { hourLabel, peso, today } from "../lib/format";
 import { Async, Field } from "./ui";
 import Select from "./Select";
 import { useToast } from "./Toast";
+import { useAuth } from "../lib/auth";
 import type { Booking, Equipment, Quote, Renter, Studio } from "../types";
 
 function Inner({
@@ -25,6 +26,12 @@ function Inner({
   const [sp] = useSearchParams();
   const nav = useNavigate();
   const toast = useToast();
+  const { user, hasRole } = useAuth();
+  const isCustomer = !hasRole("owner");
+  const me = renters.find(
+    (r) =>
+      r.name.trim().toLowerCase() === (user?.name ?? "").trim().toLowerCase(),
+  );
   const startQ = Number(sp.get("start")) || 10;
   const {
     register,
@@ -35,7 +42,7 @@ function Inner({
   } = useForm<BookingValues>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
-      renterId: initial?.renterId ?? "",
+      renterId: initial?.renterId ?? (isCustomer ? me?.id : undefined) ?? "",
       studioId: initial?.studioId ?? sp.get("studio") ?? studios[0]?.id ?? "",
       date: initial?.date ?? sp.get("date") ?? today(),
       startHour: initial?.startHour ?? startQ,
@@ -113,8 +120,12 @@ function Inner({
       noValidate
     >
       <div className="card space-y-5 lg:col-span-3">
+        <h2 className="text-xl font-bold">Booking details</h2>
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Renter" error={errors.renterId?.message}>
+          <Field
+            label={isCustomer ? "Booking for" : "Renter"}
+            error={errors.renterId?.message}
+          >
             <Select
               value={v.renterId}
               onChange={(val) =>
@@ -125,10 +136,12 @@ function Inner({
               }
               options={[
                 { value: "", label: "Choose a renter" },
-                ...renters.map((r) => ({
-                  value: r.id,
-                  label: `${r.name} (${r.tier})`,
-                })),
+                ...renters
+                  .filter((r) => !isCustomer || !me || r.id === me.id)
+                  .map((r) => ({
+                    value: r.id,
+                    label: `${r.name} (${r.tier})`,
+                  })),
               ]}
             />
           </Field>
@@ -192,7 +205,7 @@ function Inner({
             {gear.map((g) => (
               <label
                 key={g.id}
-                className="flex cursor-pointer items-center gap-3 rounded-lg border border-line p-3 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50"
+                className="flex cursor-pointer items-center gap-3 rounded-xl border border-line p-3.5 transition hover:border-brand-500 hover:shadow-card has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50"
               >
                 <input
                   type="checkbox"
@@ -211,7 +224,7 @@ function Inner({
           </div>
         </fieldset>
       </div>
-      <aside className="space-y-4 lg:col-span-2">
+      <aside className="space-y-4 lg:sticky lg:top-24 lg:col-span-2 lg:self-start">
         <div className="card">
           <h2 className="text-xl font-bold">Price</h2>
           {quote ? (
@@ -232,7 +245,7 @@ function Inner({
                 </dt>
                 <dd>−{peso(quote.discount)}</dd>
               </div>
-              <div className="flex justify-between border-t border-line pt-3 font-display text-2xl font-extrabold">
+              <div className="flex justify-between border-t border-line pt-3 font-display text-3xl font-extrabold">
                 <dt>Total</dt>
                 <dd>{peso(quote.total)}</dd>
               </div>
@@ -247,7 +260,10 @@ function Inner({
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className="btn btn-primary" disabled={isSubmitting || !quote}>
+          <button
+            className="btn btn-spot flex-1 py-3"
+            disabled={isSubmitting || !quote}
+          >
             {isSubmitting
               ? "Saving…"
               : initial

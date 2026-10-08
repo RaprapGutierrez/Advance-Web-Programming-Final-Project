@@ -28,9 +28,9 @@ const features = [
 
 export default function Landing() {
   const gear = useFetch<Equipment[]>("/equipment");
-   const items = gear.data?.slice(0, 8) ?? [];
+  const items = gear.data?.slice(0, 8) ?? [];
   const { user } = useAuth();
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<Equipment | null>(null);
   const rent = (g: Equipment) => {
     const target = `/bookings/new?equipment=${g.id}`;
@@ -43,10 +43,12 @@ export default function Landing() {
   };
 
   return (
-
     <div className="space-y-16 sm:space-y-24">
       <section className="grid items-center gap-10 lg:grid-cols-2">
         <div>
+          <span className="mb-4 inline-block rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">
+            Studio rentals, made simple
+          </span>
           <h1 className="text-4xl font-extrabold leading-[1.05] sm:text-6xl">
             Book the room. Skip the back-and-forth.
           </h1>
@@ -67,7 +69,10 @@ export default function Landing() {
       </section>
       <section className="grid gap-4 md:grid-cols-3">
         {features.map(([t, b]) => (
-          <div key={t} className="card">
+          <div
+            key={t}
+            className="card border-t-4 border-t-brand-500 transition hover:-translate-y-1 hover:shadow-card"
+          >
             <h2 className="text-xl font-bold">{t}</h2>
             <p className="mt-2 text-ink-500">{b}</p>
           </div>
@@ -90,19 +95,20 @@ export default function Landing() {
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {items.map((g) => (
-           <article
+              <article
                 key={g.id}
                 role="button"
                 tabIndex={0}
                 onClick={() => setSelected(g)}
                 onKeyDown={(e) => e.key === "Enter" && setSelected(g)}
-                className="card !p-3 cursor-pointer transition hover:-translate-y-1"
-              >                <Thumb
+                className="card !p-3 cursor-pointer transition hover:-translate-y-1 hover:shadow-card"
+              >
+                <Thumb
                   src={equipmentImage(g)}
                   alt={g.name}
                   className="aspect-square w-full rounded-lg"
                 />
-                <p className="mt-3 truncate font-semibold">{g.name}</p>
+                <p className="mt-3 truncate text-lg font-bold">{g.name}</p>
                 <p className="text-sm text-ink-500">
                   {peso(g.fee)} per booking
                 </p>
@@ -113,7 +119,7 @@ export default function Landing() {
       )}
       {selected && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
           onClick={() => setSelected(null)}
         >
           <div
@@ -132,9 +138,13 @@ export default function Landing() {
               alt={selected.name}
               className="aspect-video w-full rounded-lg"
             />
-            <h3 className="mt-4 text-2xl font-bold">{selected.name}</h3>
+            <h3 className="mt-4 text-3xl font-extrabold">{selected.name}</h3>
             <p className="mt-1 text-ink-500">
-              {peso(selected.fee)} per booking
+              <span className="rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">
+                <span className="rounded-full bg-brand-50 px-3 py-1 text-sm font-bold text-brand-700">
+                  {peso(selected.fee)} per booking
+                </span>
+              </span>
             </p>
             <div className="mt-6 flex gap-3">
               <button
@@ -154,7 +164,6 @@ export default function Landing() {
         </div>
       )}
       <FeedbackSection />
-
     </div>
   );
 }

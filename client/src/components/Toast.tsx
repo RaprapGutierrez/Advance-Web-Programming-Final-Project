@@ -1,13 +1,25 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  type ReactNode,
+} from "react";
 
-type Kind = 'success' | 'error';
-interface Item { id: number; message: string; kind: Kind }
-const ToastCtx = createContext<(message: string, kind?: Kind) => void>(() => {});
+type Kind = "success" | "error";
+interface Item {
+  id: number;
+  message: string;
+  kind: Kind;
+}
+const ToastCtx = createContext<(message: string, kind?: Kind) => void>(
+  () => {},
+);
 export const useToast = () => useContext(ToastCtx);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<Item[]>([]);
-  const push = useCallback((message: string, kind: Kind = 'success') => {
+  const push = useCallback((message: string, kind: Kind = "success") => {
     const id = Date.now() + Math.random();
     setItems((l) => [...l, { id, message, kind }]);
     setTimeout(() => setItems((l) => l.filter((x) => x.id !== id)), 4000);
@@ -15,9 +27,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastCtx.Provider value={push}>
       {children}
-      <div className="fixed inset-x-4 bottom-4 z-50 flex flex-col items-center gap-2 sm:items-end" aria-live="polite">
+      <div
+        className="pointer-events-none fixed inset-x-4 bottom-4 z-[100] flex flex-col items-center gap-2 sm:items-end"
+        aria-live="polite"
+      >
         {items.map((t) => (
-          <div key={t.id} className={`max-w-sm rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-card ${t.kind === 'success' ? 'bg-brand-700' : 'bg-coral-600'}`}>
+          <div
+            key={t.id}
+            className={`max-w-sm rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-card ${t.kind === "success" ? "bg-brand-700" : "bg-alert-600"}`}
+          >
             {t.message}
           </div>
         ))}

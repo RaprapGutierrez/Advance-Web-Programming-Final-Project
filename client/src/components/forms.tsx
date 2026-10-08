@@ -36,8 +36,8 @@ const Actions = ({
   label: string;
   onClose: () => void;
 }) => (
-  <div className="flex gap-2 pt-2">
-    <button className="btn btn-primary" disabled={busy}>
+  <div className="flex gap-2 border-t border-line pt-4">
+    <button className="btn btn-primary flex-1" disabled={busy}>
       {busy ? "Saving…" : label}
     </button>
     <button type="button" className="btn btn-ghost" onClick={onClose}>
@@ -85,7 +85,7 @@ function ImagePicker({
             className="h-16 w-24 rounded-lg object-cover"
           />
         ) : (
-          <div className="h-16 w-24 rounded-lg bg-line" />
+          <div className="h-20 w-28 rounded-lg border border-dashed border-line bg-line" />
         )}
         <div className="flex flex-col gap-1">
           <label className="btn btn-ghost cursor-pointer px-3 py-2 text-sm">
@@ -153,7 +153,7 @@ function GalleryPicker({
     <Field label={label} error={undefined}>
       <div className="flex flex-wrap gap-3">
         {values.map((src, i) => (
-          <div key={i} className="group relative h-16 w-24">
+          <div key={i} className="group relative h-20 w-28">
             <img
               src={src}
               alt=""
@@ -174,7 +174,7 @@ function GalleryPicker({
             </button>
           </div>
         ))}
-        <label className="btn btn-ghost h-16 cursor-pointer px-3 py-2 text-sm">
+        <label className="btn btn-ghost h-20 w-28 cursor-pointer border-dashed px-3 py-2 text-sm">
           + Add image
           <input
             type="file"
