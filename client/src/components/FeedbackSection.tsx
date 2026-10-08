@@ -59,11 +59,17 @@ const gearSamples = [
   },
 ];
 
-function Stars({ value }: { value: number }) {
+function Stars({
+  value,
+  empty = "text-line",
+}: {
+  value: number;
+  empty?: string;
+}) {
   return (
     <span className="text-spot-400" aria-label={`${value} out of 5 stars`}>
       {"★".repeat(value)}
-      <span className="text-line">{"★".repeat(5 - value)}</span>
+      <span className={empty}>{"★".repeat(5 - value)}</span>
     </span>
   );
 }
@@ -111,26 +117,37 @@ export default function FeedbackSection() {
   ];
 
   return (
-    <section>
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+    <section className="rounded-3xl bg-brand-900 p-6 shadow-card sm:p-10">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
         <div>
-          <h2 className="text-2xl font-bold sm:text-3xl">What renters say</h2>
-          <p className="mt-1 text-ink-500">
-            <Stars value={Math.round(avg)} /> {avg.toFixed(1)} average from{" "}
-            {reviews.length} reviews
-          </p>
+          <h2 className="text-2xl font-bold text-white sm:text-4xl">
+            What renters say
+          </h2>
+          <div className="mt-3 flex items-center gap-3">
+            <span className="font-display text-5xl font-extrabold leading-none text-spot-400">
+              {avg.toFixed(1)}
+            </span>
+            <div>
+              <p className="text-lg leading-none">
+                <Stars value={Math.round(avg)} empty="text-white/25" />
+              </p>
+              <p className="mt-1 text-sm text-white/70">
+                from {reviews.length} reviews
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-1" role="tablist">
+        <div className="flex flex-wrap gap-2" role="tablist">
           {tabs.map(([key, label]) => (
             <button
               key={key}
               role="tab"
               aria-selected={tab === key}
               onClick={() => setTab(key)}
-              className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition duration-200 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-spot-400 ${
                 tab === key
-                  ? "bg-brand-900 text-white"
-                  : "text-ink-500 hover:bg-brand-50"
+                  ? "bg-spot-400 text-brand-900 shadow-md"
+                  : "border border-white/25 text-white hover:bg-white/10"
               }`}
             >
               {label}
@@ -139,27 +156,58 @@ export default function FeedbackSection() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-3">
         {shown.map((r) => (
-          <article key={r.id} className="card flex flex-col">
-            <div className="flex items-center gap-3">
+          <article
+            key={r.id}
+            className="card relative flex flex-col overflow-hidden border-0 pt-7 transition duration-200 hover:-translate-y-1.5 hover:shadow-xl"
+          >
+            {/* colored accent bar */}
+            <span className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brand-600 via-alert-600 to-spot-400" />
+            {/* big quote mark */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute right-4 top-3 font-display text-7xl font-extrabold leading-none text-brand-100"
+            >
+              “
+            </span>
+
+            <div className="relative flex items-center gap-3">
               <Thumb
                 src={r.image}
                 alt={r.name}
-                className="h-12 w-12 rounded-lg"
+                className="h-12 w-12 rounded-xl"
               />
               <div className="min-w-0">
-                <p className="truncate font-semibold">{r.name}</p>
-                <p className="text-xs capitalize text-ink-500">{r.kind}</p>
+                <p className="truncate font-bold text-brand-900">{r.name}</p>
+                <span
+                  className={`badge mt-0.5 capitalize ${
+                    r.kind === "studio"
+                      ? "bg-brand-50 text-brand-700"
+                      : "bg-alert-100 text-alert-700"
+                  }`}
+                >
+                  {r.kind}
+                </span>
               </div>
             </div>
-            <p className="mt-3 text-sm">
+
+            <p className="mt-4 text-base">
               <Stars value={r.rating} />
             </p>
-            <p className="mt-2 flex-1 text-sm text-ink-500">“{r.text}”</p>
-            <p className="mt-3 text-xs text-ink-500">
-              {r.author} · {r.when}
+            <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-500">
+              {r.text}
             </p>
+
+            <div className="mt-5 flex items-center gap-3 border-t border-line pt-4">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">
+                {r.author.charAt(0)}
+              </span>
+              <div className="leading-tight">
+                <p className="text-sm font-semibold text-ink-900">{r.author}</p>
+                <p className="text-xs text-ink-300">{r.when}</p>
+              </div>
+            </div>
           </article>
         ))}
       </div>
