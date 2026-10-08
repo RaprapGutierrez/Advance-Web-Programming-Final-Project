@@ -11,6 +11,7 @@ import { useAuth } from "../lib/auth";
 import Thumb from "../components/Thumb";
 import { studioImage } from "../lib/studioImages";
 import { equipmentImage, equipmentType } from "../lib/equipmentImages";
+import StudioCarousel from "../components/StudioCarousel";
 
 export default function Studios() {
   const studios = useFetch<Studio[]>("/studios");
@@ -46,7 +47,36 @@ export default function Studios() {
     }
   }
   return (
-    <>
+     <>
+      {!isOwner && (
+        <section className="mb-12 grid items-center gap-10 lg:grid-cols-2">
+          <div>
+            <h1 className="text-4xl font-extrabold leading-[1.05] sm:text-5xl">
+              Find your room. Pick your time. Make something.
+            </h1>
+            <p className="mt-5 max-w-lg text-lg text-ink-500">
+              Browse our music rooms, photo studios, dance halls and podcast
+              booths, compare peak and off-peak rates, and add the gear you
+              need before you book.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                to="/bookings/new"
+                className="btn btn-spot px-6 py-3 text-base"
+              >
+                Book a session
+              </Link>
+              <Link
+                to="/calendar"
+                className="btn btn-ghost px-6 py-3 text-base"
+              >
+                Check availability
+              </Link>
+            </div>
+          </div>
+          <StudioCarousel />
+        </section>
+      )}
       <PageHeader
         title="Studios"
         subtitle={
@@ -74,7 +104,28 @@ export default function Studios() {
         }}
       >
         {studios.data && gear.data && (
-          <div className="space-y-10">
+             <div className="space-y-10">
+            {isOwner && (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                {[
+                  ["Studios", studios.data.length],
+                  ["Add-ons", gear.data.length],
+                  [
+                    "Total capacity",
+                   studios.data.reduce((n, s) => n + s.capacity, 0) + "pax",
+                  ],
+                  [
+                    "Out of stock",
+                    gear.data.filter((g) => g.quantity < 1).length,
+                  ],
+                ].map(([label, value]) => (
+                  <div key={label} className="card !p-4">
+                    <p className="text-sm text-ink-500">{label}</p>
+                    <p className="mt-1 text-3xl font-extrabold">{value}</p>
+                  </div>
+                ))}
+              </div>
+            )}
             {studios.data.length === 0 ? (
               <Empty
                 title="No studios yet"
@@ -122,10 +173,10 @@ export default function Studios() {
                         <dd className="font-bold">{s.capacity} pax</dd>
                       </div>
                     </dl>
-                    <p className="mt-3 text-sm text-ink-500">
+                     <p className="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-line px-3 py-1 text-sm font-medium text-ink-500">
+                      <span className="h-2 w-2 rounded-full bg-ok-600" />
                       Open {hourLabel(s.openHour)} to {hourLabel(s.closeHour)}
-                    </p>
-                    <div className="mt-5 flex flex-wrap gap-2">
+                    </p>   <div className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4">
                       <Link to={`/studios/${s.id}`} className="btn btn-primary">
                         View
                       </Link>
@@ -199,6 +250,12 @@ export default function Studios() {
                           <span className="ml-2 rounded-full bg-line px-2 py-0.5 text-xs font-medium text-ink-500">
                             {equipmentType(g)}
                           </span>
+                          {isOwner && g.quantity < 1 && (
+                            <span className="ml-2 rounded-full bg-alert-600/15 px-2 py-0.5 text-xs font-medium text-alert-600">
+                              Out of stock
+                            </span>
+                          )}
+                          
                         </p>
                         <p className="text-sm text-ink-500">
                           {peso(g.fee)} per booking · {g.quantity}{" "}
