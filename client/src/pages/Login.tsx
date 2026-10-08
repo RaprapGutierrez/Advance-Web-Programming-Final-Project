@@ -1,12 +1,5 @@
-<<<<<<< HEAD
-// src/pages/Login.tsx
-import { useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Field } from "../components/ui";
-=======
 import { useState, type FormEvent, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
->>>>>>> d3a8691dccc9f4cbfb7f1c142e70c4c98b4ffd34
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth, type Role } from "../lib/auth";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -46,7 +39,7 @@ function AuthField({
 
 export default function Login() {
   const { loginAs } = useAuth();
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from;
 
@@ -79,7 +72,7 @@ const navigate = useNavigate();
 
       const role = data.user.role as Role;
       loginAs(role, { id: data.user.id, name: data.user.name });
-    navigate(from ?? (role === "owner" ? "/dashboard" : "/studios"), {
+      navigate(from ?? (role === "owner" ? "/dashboard" : "/studios"), {
         replace: true,
       });
     } catch {
@@ -89,7 +82,7 @@ const navigate = useNavigate();
     }
   }
 
-    return (
+  return (
     <div className="mx-auto max-w-5xl">
       <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-brand-900 text-white shadow-card">
         <div
@@ -130,7 +123,10 @@ const navigate = useNavigate();
             </div>
             <p className="mt-10 border-t border-white/10 pt-6 text-sm text-white/50">
               New customer?{" "}
-              <Link to="/register" className="font-bold text-spot-300 underline">
+              <Link
+                to="/register"
+                className="font-bold text-spot-300 underline"
+              >
                 Create an account
               </Link>
             </p>
@@ -194,7 +190,10 @@ const navigate = useNavigate();
 
             <p className="mt-5 text-sm text-white/60 lg:hidden">
               New customer?{" "}
-              <Link to="/register" className="font-bold text-spot-300 underline">
+              <Link
+                to="/register"
+                className="font-bold text-spot-300 underline"
+              >
                 Create an account
               </Link>
             </p>
