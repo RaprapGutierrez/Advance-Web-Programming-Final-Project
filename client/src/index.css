@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "DM Sans", ui-sans-serif, sans-serif;
+  --color-haze: #f4f2fb;
+  --color-line: #e0dcf0;
+  --color-ink-900: #1c1a33;
+  --color-ink-500: #5d5a78;
+  --color-ink-300: #9a97b3;
+  --color-brand-50: #eeebff;
+  --color-brand-100: #d9d3ff;
+  --color-brand-500: #6a5cf0;
+  --color-brand-600: #5445d6;
+  --color-brand-700: #4333b3;
+  --color-brand-900: #231c63;
+  --color-spot-300: #ffc86b;
+  --color-spot-400: #ffb02e;
+  --color-spot-500: #f59e0b;
+  --color-alert-100: #ffe1ea;
+  --color-alert-600: #d6336c;
+  --color-alert-700: #b0255a;
+  --color-ok-100: #dcf5e7;
+  --color-ok-600: #12805c;
+  --shadow-card: 0 1px 2px rgb(28 26 51 / 0.05), 0 12px 30px -16px rgb(28 26 51 / 0.22);
+}
+
+@layer base {
+  body { @apply bg-haze font-sans text-ink-900 antialiased overflow-x-clip; }
+  h1, h2, h3 { @apply font-display tracking-tight; }
+}
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply bg-brand-600 text-white hover:bg-brand-700; }
+  .btn-spot { @apply bg-spot-400 text-ink-900 hover:bg-spot-500; }
+  .btn-ghost { @apply border border-line bg-white text-ink-900 hover:bg-brand-50; }
+  .btn-danger { @apply bg-alert-600 text-white hover:bg-alert-700; }
+  .card { @apply rounded-xl border border-line bg-white p-5 shadow-card sm:p-6; }
+  .input { @apply w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-300 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100; }
+  .label { @apply mb-1.5 block text-sm font-semibold text-ink-900; }
+  .badge { @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold; }
+}
