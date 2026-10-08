@@ -49,16 +49,16 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
     @apply bg-brand-600 text-white hover:bg-brand-700;
   }
   .btn-spot {
-    @apply bg-spot-400 text-ink-900 hover:bg-spot-500;
+    @apply bg-spot-400 text-brand-900 shadow-sm hover:bg-spot-500;
   }
   .btn-ghost {
-    @apply border border-line bg-white text-ink-900 hover:bg-brand-50;
+    @apply border-2 border-brand-600 bg-white text-brand-700 hover:bg-brand-600 hover:text-white;
   }
   .btn-danger {
     @apply bg-alert-600 text-white hover:bg-alert-700;
