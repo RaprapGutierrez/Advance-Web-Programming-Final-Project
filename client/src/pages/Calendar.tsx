@@ -180,11 +180,13 @@ export default function Calendar() {
         {studioId && (
           <div
             className={`grid items-start gap-8 ${
-              isOwner ? "lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]" : ""
+              isOwner && !isAll
+                ? "lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
+                : ""
             }`}
           >
             {isAll ? (
-              <div className="grid gap-6 xl:grid-cols-2">
+              <div className="grid gap-6 md:grid-cols-2">
                 {studios.data?.map((s) => (
                   <StudioDayCard
                     key={s.id}
@@ -256,7 +258,11 @@ export default function Calendar() {
 
             {/* Owner-only: every booking for the day, kept beside the grid on wide screens */}
             {isOwner && (
-              <section className="card !p-0 overflow-hidden lg:sticky lg:top-6">
+              <section
+                className={`card !p-0 overflow-hidden ${
+                  isAll ? "" : "lg:sticky lg:top-6"
+                }`}
+              >
                 <header className="flex items-baseline justify-between border-b border-line px-6 py-5">
                   <h2 className="text-xl font-bold tracking-tight">
                     Bookings on {fmtDate(date)}
