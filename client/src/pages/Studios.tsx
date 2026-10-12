@@ -13,6 +13,16 @@ import { studioImage } from "../lib/studioImages";
 import { equipmentImage, equipmentType } from "../lib/equipmentImages";
 import StudioCarousel from "../components/StudioCarousel";
 
+type MyBooking = {
+  id: string;
+  studioName?: string;
+  date?: string;
+  startHour?: number;
+  endHour?: number;
+  total?: number;
+  status?: string;
+};
+
 export default function Studios() {
   const studios = useFetch<Studio[]>("/studios");
   const gear = useFetch<Equipment[]>("/equipment");
@@ -27,6 +37,13 @@ export default function Studios() {
   const toast = useToast();
   const isOwner = useAuth().hasRole("owner");
   const [rented, setRented] = useState<string[]>([]);
+const [showHistory, setShowHistory] = useState(false);
+const myBookings = useFetch<MyBooking[]>(
+  !isOwner && showHistory ? "/bookings" : null,
+);
+const myList = [...(myBookings.data ?? [])].sort((a, b) =>
+  (b.date ?? "").localeCompare(a.date ?? ""),
+);
   const toggleRent = (id: string) =>
     setRented((r) => (r.includes(id) ? r.filter((x) => x !== id) : [...r, id]));
 

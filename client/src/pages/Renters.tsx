@@ -194,7 +194,7 @@ export default function Renters() {
                       <p className="text-xs capitalize text-ink-500">
                         {b.status}
                       </p>
-                    </div>
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-                    </div>
                   </li>
                 ))}
               </ul>
