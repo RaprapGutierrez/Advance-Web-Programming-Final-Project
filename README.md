@@ -6,12 +6,12 @@
 
 ## Group Members
 
-| Member                    | Role                        | Main contributions                                                  |
-| ------------------------- | --------------------------- | ------------------------------------------------------------------- |
-| Gutierrez, Rafael A.      | Backend and Database        | [Edit to match commits: Express API, Mongoose models, seed scripts] |
-| Bitun, Andrew D.          | Frontend Functionality      | [Edit to match commits: React Router, axios, forms, hooks]          |
-| Datu, Milcah V.           | UI Design and Documentation | [Edit to match commits: Tailwind theme, pages, README]              |
-| Bautista, Adrienne Jey O. | UI Design and Documentation | [Edit to match commits: components, responsive layout, testing]     |
+| Member                    | Role                        | Main contributions                                                                                                                                                                                                                                                           |
+| ------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gutierrez, Rafael A.      | Backend and Database        | Express API, Mongoose models and MongoDB Atlas setup for studios, equipment, renters, bookings, payments and auth; deployment config; repository setup and merging teammates' work; integration and UI fixes (landing page, color palette, owner calendar, customer history) |
+| Bitun, Andrew D.          | Frontend Functionality      | Register and Login pages                                                                                                                                                                                                                                                     |
+| Datu, Milcah V.           | UI Design and Documentation | Renter and studio UI, customer booking history                                                                                                                                                                                                                               |
+| Bautista, Adrienne Jey O. | UI Design and Documentation | Landing page updates, booking calendar and payment UI, studio dropdown idea                                                                                                                                                                                                  |
 
 ## Concept
 
