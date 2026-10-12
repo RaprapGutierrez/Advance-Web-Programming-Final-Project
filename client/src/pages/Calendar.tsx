@@ -9,6 +9,54 @@ import { fmtDate, shiftDate, today } from "../lib/format";
 import { useAuth } from "../lib/auth";
 import type { Availability, Booking, Studio } from "../types";
 
+function StudioDayCard({
+  studio,
+  date,
+  onPick,
+}: {
+  studio: Studio;
+  date: string;
+  onPick: (h: number) => void;
+}) {
+  const a = useFetch<Availability>(
+    `/studios/${studio.id}/availability?date=${date}`,
+  );
+  const total = a.data ? a.data.freeHours + a.data.bookedHours : 0;
+  const pct =
+    a.data && total > 0 ? Math.round((a.data.bookedHours / total) * 100) : 0;
+  return (
+    <section className="card !p-0 overflow-hidden">
+      <header className="border-b border-line px-6 py-5">
+        <h2 className="text-xl font-bold tracking-tight">{studio.name}</h2>
+        {a.data && (
+          <div className="mt-3">
+            <div
+              className="h-2 w-full overflow-hidden rounded-full bg-line"
+              role="img"
+              aria-label={`${pct}% of hours booked`}
+            >
+              <div
+                className="h-full rounded-full bg-brand-500 transition-[width] duration-300"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <p className="mt-2 text-sm text-ink-500">
+              <strong className="font-semibold">{a.data.freeHours}</strong> free
+              · <strong className="font-semibold">{a.data.bookedHours}</strong>{" "}
+              booked
+            </p>
+          </div>
+        )}
+      </header>
+      <div className="px-6 py-5">
+        <Async loading={a.loading} error={a.error} retry={a.refetch}>
+          {a.data && <SlotGrid slots={a.data.slots} onPick={onPick} />}
+        </Async>
+      </div>
+    </section>
+  );
+}
+
 export default function Calendar() {
   const [sp, setSp] = useSearchParams();
   const nav = useNavigate();
@@ -17,8 +65,11 @@ export default function Calendar() {
   const studios = useFetch<Studio[]>("/studios");
   const date = sp.get("date") ?? today();
   const studioId = sp.get("studio") ?? studios.data?.[0]?.id ?? null;
+  const isAll = studioId === "all";
   const avail = useFetch<Availability>(
-    studioId ? `/studios/${studioId}/availability?date=${date}` : null,
+    studioId && !isAll
+      ? `/studios/${studioId}/availability?date=${date}`
+      : null,
   );
   const bookings = useFetch<Booking[]>(`/bookings?date=${date}`);
   const set = (patch: Record<string, string>) =>
@@ -33,7 +84,9 @@ export default function Calendar() {
     ? avail.data.freeHours + avail.data.bookedHours
     : 0;
   const bookedPct =
-    totalHours > 0 ? Math.round((avail.data!.bookedHours / totalHours) * 100) : 0;
+    totalHours > 0
+      ? Math.round((avail.data!.bookedHours / totalHours) * 100)
+      : 0;
 
   return (
     <>
@@ -92,7 +145,10 @@ export default function Calendar() {
         </div>
         <div className="sm:min-w-[14rem]">
           <StudioSelect
-            options={studios.data ?? []}
+            options={[
+              { id: "all", name: "All studios" } as Studio,
+              ...(studios.data ?? []),
+            ]}
             value={studioId ?? ""}
             onChange={(id) => set({ studio: id })}
           />
@@ -127,60 +183,76 @@ export default function Calendar() {
               isOwner ? "lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]" : ""
             }`}
           >
-            {/* Availability */}
-            <section className="card !p-0 overflow-hidden">
-              <header className="border-b border-line px-6 py-5">
-                <h2 className="text-2xl font-bold tracking-tight">
-                  {fmtDate(date)}
-                </h2>
-                {avail.data && (
-                  <div className="mt-4">
-                    <div
-                      className="h-2 w-full overflow-hidden rounded-full bg-line"
-                      role="img"
-                      aria-label={`${bookedPct}% of hours booked`}
-                    >
-                      <div
-                        className="h-full rounded-full bg-ink-500 transition-[width] duration-300"
-                        style={{ width: `${bookedPct}%` }}
-                      />
-                    </div>
-                    <p className="mt-2 flex gap-4 text-sm text-ink-500">
-                      <span>
-                        <strong className="font-semibold">
-                          {avail.data.freeHours}
-                        </strong>{" "}
-                        free hours
-                      </span>
-                      <span>
-                        <strong className="font-semibold">
-                          {avail.data.bookedHours}
-                        </strong>{" "}
-                        booked
-                      </span>
-                    </p>
-                  </div>
-                )}
-              </header>
-              <div className="px-6 py-5">
-                <Async
-                  loading={avail.loading}
-                  error={avail.error}
-                  retry={avail.refetch}
-                >
-                  {avail.data && (
-                    <SlotGrid
-                      slots={avail.data.slots}
-                      onPick={(h) =>
-                        nav(
-                          `/bookings/new?studio=${studioId}&date=${date}&start=${h}`,
-                        )
-                      }
-                    />
-                  )}
-                </Async>
+            {isAll ? (
+              <div className="grid gap-6 xl:grid-cols-2">
+                {studios.data?.map((s) => (
+                  <StudioDayCard
+                    key={s.id}
+                    studio={s}
+                    date={date}
+                    onPick={(h) =>
+                      nav(
+                        `/bookings/new?studio=${s.id}&date=${date}&start=${h}`,
+                      )
+                    }
+                  />
+                ))}
               </div>
-            </section>
+            ) : (
+              <section className="card !p-0 overflow-hidden">
+                <header className="border-b border-line px-6 py-5">
+                  <h2 className="text-2xl font-bold tracking-tight">
+                    {fmtDate(date)}
+                  </h2>
+                  {avail.data && (
+                    <div className="mt-4">
+                      <div
+                        className="h-2 w-full overflow-hidden rounded-full bg-line"
+                        role="img"
+                        aria-label={`${bookedPct}% of hours booked`}
+                      >
+                        <div
+                          className="h-full rounded-full bg-ink-500 transition-[width] duration-300"
+                          style={{ width: `${bookedPct}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 flex gap-4 text-sm text-ink-500">
+                        <span>
+                          <strong className="font-semibold">
+                            {avail.data.freeHours}
+                          </strong>{" "}
+                          free hours
+                        </span>
+                        <span>
+                          <strong className="font-semibold">
+                            {avail.data.bookedHours}
+                          </strong>{" "}
+                          booked
+                        </span>
+                      </p>
+                    </div>
+                  )}
+                </header>
+                <div className="px-6 py-5">
+                  <Async
+                    loading={avail.loading}
+                    error={avail.error}
+                    retry={avail.refetch}
+                  >
+                    {avail.data && (
+                      <SlotGrid
+                        slots={avail.data.slots}
+                        onPick={(h) =>
+                          nav(
+                            `/bookings/new?studio=${studioId}&date=${date}&start=${h}`,
+                          )
+                        }
+                      />
+                    )}
+                  </Async>
+                </div>
+              </section>
+            )}
 
             {/* Owner-only: every booking for the day, kept beside the grid on wide screens */}
             {isOwner && (
