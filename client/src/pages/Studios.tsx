@@ -37,13 +37,13 @@ export default function Studios() {
   const toast = useToast();
   const isOwner = useAuth().hasRole("owner");
   const [rented, setRented] = useState<string[]>([]);
-const [showHistory, setShowHistory] = useState(false);
-const myBookings = useFetch<MyBooking[]>(
-  !isOwner && showHistory ? "/bookings" : null,
-);
-const myList = [...(myBookings.data ?? [])].sort((a, b) =>
-  (b.date ?? "").localeCompare(a.date ?? ""),
-);
+  const [showHistory, setShowHistory] = useState(false);
+  const myBookings = useFetch<MyBooking[]>(
+    !isOwner && showHistory ? "/bookings" : null,
+  );
+  const myList = [...(myBookings.data ?? [])].sort((a, b) =>
+    (b.date ?? "").localeCompare(a.date ?? ""),
+  );
   const toggleRent = (id: string) =>
     setRented((r) => (r.includes(id) ? r.filter((x) => x !== id) : [...r, id]));
 
@@ -64,7 +64,7 @@ const myList = [...(myBookings.data ?? [])].sort((a, b) =>
     }
   }
   return (
-     <>
+    <>
       {!isOwner && (
         <section className="mb-12 grid items-center gap-10 lg:grid-cols-2">
           <div>
@@ -73,8 +73,8 @@ const myList = [...(myBookings.data ?? [])].sort((a, b) =>
             </h1>
             <p className="mt-5 max-w-lg text-lg text-ink-500">
               Browse our music rooms, photo studios, dance halls and podcast
-              booths, compare peak and off-peak rates, and add the gear you
-              need before you book.
+              booths, compare peak and off-peak rates, and add the gear you need
+              before you book.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
@@ -109,7 +109,14 @@ const myList = [...(myBookings.data ?? [])].sort((a, b) =>
             >
               Add studio
             </button>
-          ) : undefined
+          ) : (
+            <button
+              className="btn btn-ghost"
+              onClick={() => setShowHistory(true)}
+            >
+              History
+            </button>
+          )
         }
       />
       <Async
@@ -121,7 +128,7 @@ const myList = [...(myBookings.data ?? [])].sort((a, b) =>
         }}
       >
         {studios.data && gear.data && (
-             <div className="space-y-10">
+          <div className="space-y-10">
             {isOwner && (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {[
@@ -129,7 +136,7 @@ const myList = [...(myBookings.data ?? [])].sort((a, b) =>
                   ["Add-ons", gear.data.length],
                   [
                     "Total capacity",
-                   studios.data.reduce((n, s) => n + s.capacity, 0) + "pax",
+                    studios.data.reduce((n, s) => n + s.capacity, 0) + "pax",
                   ],
                   [
                     "Out of stock",
@@ -190,10 +197,11 @@ const myList = [...(myBookings.data ?? [])].sort((a, b) =>
                         <dd className="font-bold">{s.capacity} pax</dd>
                       </div>
                     </dl>
-                     <p className="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-line px-3 py-1 text-sm font-medium text-ink-500">
+                    <p className="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-line px-3 py-1 text-sm font-medium text-ink-500">
                       <span className="h-2 w-2 rounded-full bg-ok-600" />
                       Open {hourLabel(s.openHour)} to {hourLabel(s.closeHour)}
-                    </p>   <div className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4">
+                    </p>{" "}
+                    <div className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4">
                       <Link to={`/studios/${s.id}`} className="btn btn-primary">
                         View
                       </Link>
@@ -272,7 +280,6 @@ const myList = [...(myBookings.data ?? [])].sort((a, b) =>
                               Out of stock
                             </span>
                           )}
-                          
                         </p>
                         <p className="text-sm text-ink-500">
                           {peso(g.fee)} per booking · {g.quantity}{" "}
@@ -358,6 +365,83 @@ const myList = [...(myBookings.data ?? [])].sort((a, b) =>
           </div>
         )}
       </Async>
+      {showHistory && !isOwner && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setShowHistory(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="My booking history"
+            className="card relative max-h-[85vh] w-full max-w-lg overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowHistory(false)}
+              className="absolute right-3 top-3 text-2xl leading-none text-ink-500"
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h3 className="text-xl font-bold">My booking history</h3>
+            <p className="text-sm text-ink-500">
+              {myList.length} booking{myList.length === 1 ? "" : "s"} ·{" "}
+              {peso(myList.reduce((n, b) => n + (b.total ?? 0), 0))} total
+            </p>
+            {myBookings.loading ? (
+              <p className="mt-4 text-ink-500">Loading...</p>
+            ) : myBookings.error ? (
+              <p className="mt-4 text-alert-600">
+                Couldn't load your history.{" "}
+                <button className="underline" onClick={myBookings.refetch}>
+                  Try again
+                </button>
+              </p>
+            ) : myList.length === 0 ? (
+              <div className="mt-4">
+                <p className="text-ink-500">No bookings yet.</p>
+                <Link to="/bookings/new" className="btn btn-spot mt-3">
+                  Book a session
+                </Link>
+              </div>
+            ) : (
+              <ul className="mt-4 divide-y divide-line">
+                {myList.map((b) => (
+                  <li
+                    key={b.id}
+                    className="flex items-center justify-between gap-3 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold">
+                        {b.studioName ?? "Studio"}
+                      </p>
+                      <p className="text-sm text-ink-500">
+                        {b.date
+                          ? new Date(b.date).toLocaleDateString("en-PH", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })
+                          : ""}
+                        {b.startHour != null && b.endHour != null
+                          ? ` · ${hourLabel(b.startHour)} to ${hourLabel(b.endHour)}`
+                          : ""}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="font-bold">{peso(b.total ?? 0)}</p>
+                      <p className="mt-0.5 inline-block rounded-full bg-line px-2 py-0.5 text-xs font-medium capitalize text-ink-500">
+                        {b.status}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
       {studioModal && (
         <StudioModal
           studio={studioModal === "new" ? undefined : studioModal}
