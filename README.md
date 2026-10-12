@@ -1,8 +1,10 @@
 # StudioSpace: A Web-Based Studio Booking, Availability, and Rental Payment Management System
 
 **Course:** CTADWEBL, Advanced Web Programming (A.Y. 2026-2027)
-**Group:** [Group name / Section]
-**Repository:** [GitHub link]
+
+**Group:** Group 8
+
+**Repository:** https://github.com/RaprapGutierrez/StudioSpace-Studio-Rental-Booking
 
 ## Group Members
 
