@@ -11,6 +11,7 @@ const tierCls = {
   Standard: "bg-brand-50 text-brand-700",
   Silver: "bg-ink-300/40 text-ink-900",
   Gold: "bg-spot-300 text-ink-900",
+  Platinum: "bg-brand-600 text-white",
 };
 
 type RenterBooking = {
@@ -125,7 +126,9 @@ export default function Renters() {
                     (r.balanceDue > 0 ? "text-alert-600" : "text-ok-600")
                   }
                 >
-                  {r.balanceDue > 0 ? peso(r.balanceDue) + " due" : "Nothing due"}
+                  {r.balanceDue > 0
+                    ? peso(r.balanceDue) + " due"
+                    : "Nothing due"}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">
                   <button
@@ -184,7 +187,9 @@ export default function Renters() {
                     className="flex items-center justify-between gap-3 py-3"
                   >
                     <div>
-                      <p className="font-semibold">{b.studioName ?? "Studio"}</p>
+                      <p className="font-semibold">
+                        {b.studioName ?? "Studio"}
+                      </p>
                       <p className="text-sm text-ink-500">
                         {b.date ? new Date(b.date).toLocaleDateString() : ""}
                       </p>
@@ -194,7 +199,7 @@ export default function Renters() {
                       <p className="text-xs capitalize text-ink-500">
                         {b.status}
                       </p>
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-                    </div>
+                    </div>
                   </li>
                 ))}
               </ul>
