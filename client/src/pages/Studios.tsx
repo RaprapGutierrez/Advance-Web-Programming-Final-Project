@@ -54,6 +54,29 @@ export default function Studios() {
       r.name.trim().toLowerCase() === (user?.name ?? "").trim().toLowerCase(),
   );
   const [selected, setSelected] = useState<MyBooking | null>(null);
+  const sent = useFetch<{ bookingId: string }[]>(
+    !isOwner && showHistory ? "/feedback" : null,
+  );
+  const [fbFor, setFbFor] = useState<MyBooking | null>(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [sending, setSending] = useState(false);
+  async function sendFeedback() {
+    if (!fbFor) return;
+    setSending(true);
+    try {
+      await api.post("/feedback", { bookingId: fbFor.id, rating, comment });
+      toast("Thanks for your feedback!");
+      setFbFor(null);
+      setRating(5);
+      setComment("");
+      sent.refetch();
+    } catch (e) {
+      toast(errMsg(e), "error");
+    } finally {
+      setSending(false);
+    }
+  }
   const myList = (myBookings.data ?? [])
     .filter((b) => !!me && b.renterId === me.id)
     .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
@@ -451,6 +474,22 @@ export default function Studios() {
                       <p className="mt-0.5 inline-block rounded-full bg-line px-2 py-0.5 text-xs font-medium capitalize text-ink-500">
                         {b.status}
                       </p>
+                      {b.status === "completed" &&
+                        (sent.data?.some((f) => f.bookingId === b.id) ? (
+                          <p className="mt-1 text-xs font-semibold text-ok-600">
+                            Feedback sent ✓
+                          </p>
+                        ) : (
+                          <button
+                            className="btn btn-spot mt-1 px-3 py-1 text-xs"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFbFor(b);
+                            }}
+                          >
+                            Feedback
+                          </button>
+                        ))}
                     </div>
                   </li>
                 ))}
@@ -529,6 +568,70 @@ export default function Studios() {
                 <dd>{peso(selected.total ?? 0)}</dd>
               </div>
             </dl>
+          </div>
+        </div>
+      )}
+      {fbFor && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setFbFor(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Leave feedback"
+            className="card relative w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setFbFor(null)}
+              className="absolute right-3 top-3 text-2xl leading-none text-ink-500"
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h3 className="text-xl font-bold">How was your session?</h3>
+            <p className="text-sm text-ink-500">
+              {fbFor.studioName ?? "Studio"}
+            </p>
+            <div
+              className="mt-4 flex gap-1 text-3xl"
+              role="radiogroup"
+              aria-label="Rating"
+            >
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  role="radio"
+                  aria-checked={rating === n}
+                  aria-label={`${n} star${n === 1 ? "" : "s"}`}
+                  onClick={() => setRating(n)}
+                  className={n <= rating ? "text-spot-400" : "text-line"}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+            <textarea
+              className="input mt-4 h-24 w-full"
+              maxLength={500}
+              placeholder="Tell us about your experience (optional)"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            />
+            <div className="mt-4 flex gap-2">
+              <button
+                className="btn btn-spot flex-1"
+                disabled={sending}
+                onClick={sendFeedback}
+              >
+                {sending ? "Sending…" : "Send feedback"}
+              </button>
+              <button className="btn btn-ghost" onClick={() => setFbFor(null)}>
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -10,6 +10,7 @@ app.use(logger);
 app.use("/api/renters", require("./routes/renters"));
 app.use("/api/studios", require("./routes/studios"));
 app.use("/api/equipment", require("./routes/equipment"));
+app.use("/api/feedback", require("./routes/feedback"));
 app.use("/api/bookings", require("./routes/bookings"));
 app.use("/api/payments", require("./routes/payments"));
 app.use("/api/reports", require("./routes/reports"));
