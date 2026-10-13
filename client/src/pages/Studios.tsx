@@ -6,7 +6,7 @@ import { Async, ConfirmDialog, Empty, PageHeader } from "../components/ui";
 import { EquipmentModal, StudioModal } from "../components/forms";
 import { useToast } from "../components/Toast";
 import { hourLabel, peso } from "../lib/format";
-import type { Equipment, Studio } from "../types";
+import type { Equipment, Renter, Studio } from "../types";
 import { useAuth } from "../lib/auth";
 import Thumb from "../components/Thumb";
 import { studioImage } from "../lib/studioImages";
@@ -15,6 +15,10 @@ import StudioCarousel from "../components/StudioCarousel";
 
 type MyBooking = {
   id: string;
+  renterId?: string;
+  studioId?: string;
+  guests?: number;
+  equipmentIds?: string[];
   studioName?: string;
   date?: string;
   startHour?: number;
@@ -41,9 +45,18 @@ export default function Studios() {
   const myBookings = useFetch<MyBooking[]>(
     !isOwner && showHistory ? "/bookings" : null,
   );
-  const myList = [...(myBookings.data ?? [])].sort((a, b) =>
-    (b.date ?? "").localeCompare(a.date ?? ""),
+  const renters = useFetch<Renter[]>(
+    !isOwner && showHistory ? "/renters" : null,
   );
+  const { user } = useAuth();
+  const me = renters.data?.find(
+    (r) =>
+      r.name.trim().toLowerCase() === (user?.name ?? "").trim().toLowerCase(),
+  );
+  const [selected, setSelected] = useState<MyBooking | null>(null);
+  const myList = (myBookings.data ?? [])
+    .filter((b) => !!me && b.renterId === me.id)
+    .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
   const toggleRent = (id: string) =>
     setRented((r) => (r.includes(id) ? r.filter((x) => x !== id) : [...r, id]));
 
@@ -389,7 +402,7 @@ export default function Studios() {
               {myList.length} booking{myList.length === 1 ? "" : "s"} ·{" "}
               {peso(myList.reduce((n, b) => n + (b.total ?? 0), 0))} total
             </p>
-            {myBookings.loading ? (
+            {myBookings.loading || renters.loading ? (
               <p className="mt-4 text-ink-500">Loading...</p>
             ) : myBookings.error ? (
               <p className="mt-4 text-alert-600">
@@ -410,7 +423,11 @@ export default function Studios() {
                 {myList.map((b) => (
                   <li
                     key={b.id}
-                    className="flex items-center justify-between gap-3 py-3"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelected(b)}
+                    onKeyDown={(e) => e.key === "Enter" && setSelected(b)}
+                    className="flex cursor-pointer items-center justify-between gap-3 rounded-lg px-2 py-3 transition hover:bg-line active:scale-[0.98]"
                   >
                     <div className="min-w-0">
                       <p className="truncate font-semibold">
@@ -439,6 +456,79 @@ export default function Studios() {
                 ))}
               </ul>
             )}
+          </div>
+        </div>
+      )}
+      {selected && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setSelected(null)}
+        >
+          <style>{`@keyframes popIn{from{opacity:0;transform:scale(.92) translateY(8px)}to{opacity:1;transform:none}}`}</style>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Booking details"
+            className="card relative w-full max-w-sm"
+            style={{ animation: "popIn .2s ease-out" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelected(null)}
+              className="absolute right-3 top-3 text-2xl leading-none text-ink-500"
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h3 className="text-xl font-bold">
+              {selected.studioName ?? "Studio"}
+            </h3>
+            <p className="mt-1 inline-block rounded-full bg-line px-2 py-0.5 text-xs font-medium capitalize text-ink-500">
+              {selected.status}
+            </p>
+            <dl className="mt-4 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-ink-500">Date</dt>
+                <dd className="font-semibold">
+                  {selected.date
+                    ? new Date(selected.date).toLocaleDateString("en-PH", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                    : "-"}
+                </dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-ink-500">Time</dt>
+                <dd className="font-semibold">
+                  {selected.startHour != null && selected.endHour != null
+                    ? `${hourLabel(selected.startHour)} to ${hourLabel(selected.endHour)}`
+                    : "-"}
+                </dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-ink-500">Guests</dt>
+                <dd className="font-semibold">{selected.guests ?? "-"}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-ink-500">Add-ons</dt>
+                <dd className="text-right font-semibold">
+                  {selected.equipmentIds?.length
+                    ? selected.equipmentIds
+                        .map(
+                          (id) =>
+                            gear.data?.find((g) => g.id === id)?.name ?? "Item",
+                        )
+                        .join(", ")
+                    : "None"}
+                </dd>
+              </div>
+              <div className="flex justify-between border-t border-line pt-3 text-lg font-extrabold">
+                <dt>Total</dt>
+                <dd>{peso(selected.total ?? 0)}</dd>
+              </div>
+            </dl>
           </div>
         </div>
       )}
