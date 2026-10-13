@@ -64,7 +64,7 @@ export default function Calendar() {
   const [todayOn, setTodayOn] = useState(false);
   const studios = useFetch<Studio[]>("/studios");
   const date = sp.get("date") ?? today();
-  const studioId = sp.get("studio") ?? studios.data?.[0]?.id ?? null;
+  const studioId = sp.get("studio") ?? "all";
   const isAll = studioId === "all";
   const avail = useFetch<Availability>(
     studioId && !isAll
