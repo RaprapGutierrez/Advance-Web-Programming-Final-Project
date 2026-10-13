@@ -9,7 +9,10 @@ const byKeyword: [string, string][] = [
   ["band", "/images/studios/music.jpeg"],
 ];
 
-export function studioImage(s: Pick<Studio, "image" | "type" | "name">) {
+export function studioImage(
+  s: Pick<Studio, "image" | "images" | "type" | "name">,
+) {
+  if (s.images?.length) return s.images[0];
   if (s.image) return s.image;
   const text = `${s.type} ${s.name}`.toLowerCase();
   return byKeyword.find(([k]) => text.includes(k))?.[1];

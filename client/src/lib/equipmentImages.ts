@@ -26,7 +26,10 @@ export function equipmentType(g: Pick<Equipment, "type" | "name">) {
   return typeByKeyword.find(([k]) => text.includes(k))?.[1] ?? "Other";
 }
 
-export function equipmentImage(g: Pick<Equipment, "image" | "name">) {
+export function equipmentImage(
+  g: Pick<Equipment, "image" | "images" | "name">,
+) {
+  if (g.images?.length) return g.images[0];
   if (g.image) return g.image;
   const text = g.name.toLowerCase();
   return byKeyword.find(([k]) => text.includes(k))?.[1];
