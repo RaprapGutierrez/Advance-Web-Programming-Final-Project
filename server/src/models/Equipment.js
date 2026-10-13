@@ -9,6 +9,9 @@ const equipmentSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     fee: { type: Number, required: true, min: 0 },
     quantity: { type: Number, required: true, min: 1 },
+    type: { type: String, default: "" },
+    image: { type: String, default: "" },
+    images: { type: [String], default: [] },
   },
   {
     versionKey: false,

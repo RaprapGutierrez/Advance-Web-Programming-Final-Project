@@ -44,6 +44,10 @@ function clean(b) {
     description: String(b.description || "")
       .trim()
       .slice(0, 200),
+    image: String(b.image || ""),
+    images: Array.isArray(b.images)
+      ? b.images.filter((x) => typeof x === "string")
+      : [],
   };
 }
 router.get(

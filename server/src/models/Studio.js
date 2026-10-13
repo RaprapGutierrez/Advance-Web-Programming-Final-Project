@@ -15,6 +15,8 @@ const studioSchema = new mongoose.Schema(
     openHour: { type: Number, required: true },
     closeHour: { type: Number, required: true },
     description: { type: String, default: "" },
+    image: { type: String, default: "" },
+    images: { type: [String], default: [] },
   },
   {
     versionKey: false,

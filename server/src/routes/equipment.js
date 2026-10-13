@@ -19,7 +19,16 @@ function clean(b) {
   if (!(fee >= 0)) throw new HttpError(400, "Fee must be 0 or more");
   if (!Number.isInteger(quantity) || quantity < 1)
     throw new HttpError(400, "Quantity must be a whole number of at least 1");
-  return { name, fee, quantity };
+  return {
+    name,
+    fee,
+    quantity,
+    type: String(b.type || ""),
+    image: String(b.image || ""),
+    images: Array.isArray(b.images)
+      ? b.images.filter((x) => typeof x === "string")
+      : [],
+  };
 }
 router.get(
   "/",
