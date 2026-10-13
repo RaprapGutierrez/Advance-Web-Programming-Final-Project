@@ -5,7 +5,7 @@ const { notFound, errorHandler } = require("./middleware/errors");
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(logger);
 app.use("/api/renters", require("./routes/renters"));
 app.use("/api/studios", require("./routes/studios"));
