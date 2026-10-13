@@ -23,14 +23,13 @@ const pwRules: { label: string; test: (p: string) => boolean }[] = [
 // Index 0-5 maps to how many rules have passed.
 const strengthMeta = [
   { label: "Too weak", tone: "bg-alert-600", text: "text-rose-300" },
-  { label: "Too weak", tone: "bg-alert-600", text: "text-rose-300" },
   { label: "Fair", tone: "bg-spot-400", text: "text-spot-300" },
   { label: "Good", tone: "bg-spot-400", text: "text-spot-300" },
   { label: "Strong", tone: "bg-ok-600", text: "text-ok-100" },
   { label: "Very strong", tone: "bg-ok-600", text: "text-ok-100" },
 ];
 
-// Real product features (no invented statistics).
+// Perks jargon
 const perks = [
   "Compare rooms, rates and add-ons in one place.",
   "Live availability — no more double-bookings.",
@@ -90,7 +89,9 @@ export default function Register() {
     const er: Record<string, string> = {};
     if (f.name.trim().length < 2) er.name = "Enter your full name.";
     if (!/^\S+@\S+\.\S+$/.test(f.email)) er.email = "Enter a valid email.";
-    if (phoneDigits.length !== 11)
+    if (/\D/.test(f.phone))
+      er.phone = "Only numbers (0-9) are allowed";
+    else if (phoneDigits.length !== 11)
       er.phone = "Phone number must be exactly 11 digits.";
     if (score < pwRules.length)
       er.password = "Your password doesn't meet all the requirements below.";

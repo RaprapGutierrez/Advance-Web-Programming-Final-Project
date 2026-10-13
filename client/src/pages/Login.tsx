@@ -4,7 +4,7 @@ import { useAuth, type Role } from "../lib/auth";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-// Real product features (no invented statistics).
+// Real product features.
 const perks = [
   "Pick a room, date and time slot in seconds.",
   "See peak and off-peak rates up front.",
