@@ -6,6 +6,8 @@
 
 **Repository:** https://github.com/RaprapGutierrez/StudioSpace-Studio-Rental-Booking
 
+**Live client:** https://studio-space-final-project.vercel.app
+
 ## Group Members
 
 | Member                    | Role                        | Main contributions                                                                                                                                                                                                                                                           |
@@ -23,30 +25,32 @@ Studio owners who rent out music rooms, photo studios, dance halls and podcast b
 
 There are two roles:
 
-- **Customer:** registers and logs in, browses studios, checks hour-by-hour availability, books a studio with optional add-ons, sees a live price before saving, and edits or cancels their own bookings.
+- **Customer:** registers and logs in, browses studios, checks hour-by-hour availability, books a studio with optional add-ons, sees a live price before saving, edits or cancels their own bookings, views their own booking history (tap a booking for its details), and leaves feedback on completed bookings.
 - **Owner:** manages studios, add-ons and renters, confirms and completes bookings, records payments, and views the dashboard and reports.
 
 ## Data It Processes
 
-| Data                | What is stored                                                      | How it is used                                                    |
-| ------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Users               | name, email, password, role                                         | Login and role-based access                                       |
-| Renters             | name, email, phone                                                  | Customer profile; loyalty tier is derived from completed bookings |
-| Studios             | name, type, capacity, peak and off-peak rates, open and close hours | Availability and pricing                                          |
-| Equipment (add-ons) | name, fee, units owned                                              | Add-ons; units are checked for clashes                            |
-| Bookings            | renter, studio, date, hours, guests, add-ons, status                | Pricing, double-booking checks, status flow                       |
-| Payments            | booking, amount, method, date                                       | Balance due, overdue flags, revenue                               |
+| Data                | What is stored                                                                           | How it is used                                                    |
+| ------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Users               | name, email, password, role                                                              | Login and role-based access                                       |
+| Renters             | name, email, phone                                                                       | Customer profile; loyalty tier is derived from completed bookings |
+| Studios             | name, type, capacity, peak and off-peak rates, open and close hours, description, photos | Availability and pricing                                          |
+| Equipment (add-ons) | name, type, fee, units owned, photos                                                     | Add-ons; units are checked for clashes                            |
+| Bookings            | renter, studio, date, hours, guests, add-ons, status                                     | Pricing, double-booking checks, status flow                       |
+| Payments            | booking, amount, method, date                                                            | Balance due, overdue flags, revenue                               |
+| Feedback            | booking, renter, studio, rating (1 to 5), comment                                        | One review per completed booking                                  |
 
-Relationships: a Booking belongs to one Renter and one Studio and can include many Equipment items. A Payment belongs to one Booking. Registering a customer creates a User and a Renter profile with the same ID.
+Relationships: a Booking belongs to one Renter and one Studio and can include many Equipment items. A Payment belongs to one Booking. A Feedback entry belongs to one completed Booking (one per booking). Registering a customer creates a User and a Renter profile with the same ID.
 
 ## Business Logic (Data Processing)
 
 - **Availability and double-booking prevention:** a booking is rejected if the studio, or an add-on's available units, is taken for any overlapping hour.
 - **Pricing:** hours x rate (hours from 17:00 are peak) + add-ons - loyalty discount.
-- **Loyalty tiers:** Silver (2+ completed bookings, 5% off) and Gold (4+, 10% off).
+- **Loyalty tiers:** based on the renter's completed bookings. Standard (0 to 4, no discount), Silver (5 to 14, 5% off), Gold (15 to 20, 10% off) and Platinum (21 or more, 15% off). The discount applies to the hourly subtotal, not to add-ons.
 - **Status flow:** pending -> confirmed -> paid -> completed. Pending or confirmed bookings can be cancelled. "Paid" requires a zero balance. Cancelling requires no recorded payments.
 - **Payments:** only on confirmed, paid or completed bookings, and never more than the balance due. A full payment moves a confirmed booking to paid.
 - **Overdue flag:** a billable booking whose date has passed with a balance still due.
+- **Feedback:** a customer can rate (1 to 5 stars) and comment on a completed booking, once per booking.
 - **Reports:** utilization (booked vs open hours over the last 14 days), revenue per studio, and revenue per month.
 
 ## Screenshots
@@ -65,7 +69,7 @@ Add the images to `docs/screenshots/` and keep these links.
 
 ## Tech Stack
 
-React (Vite) + TypeScript, Tailwind CSS, React Router, React Hook Form + Zod, axios, Node.js + Express, MongoDB Atlas + Mongoose, Git and GitHub.
+React (Vite) + TypeScript, Tailwind CSS, React Router, React Hook Form + Zod, axios, Node.js + Express, MongoDB Atlas + Mongoose, Git and GitHub. The client is deployed on Vercel.
 
 ## Project Structure
 
@@ -90,6 +94,7 @@ server/                 Express API
 1. Create an Atlas cluster, add a database user, and allow your IP under **Network Access**.
 2. Clone the repository.
 3. Set up the server (Terminal 1):
+
    ```bash
    cd server
    cp .env.example .env      # then fill in the values below
@@ -97,13 +102,16 @@ server/                 Express API
    node src/seedOwner.js     # creates the owner account once
    npm run dev               # API on http://localhost:5000
    ```
+
 4. Set up the client (Terminal 2):
+
    ```bash
    cd client
    cp .env.example .env
    npm install
    npm run dev               # App on http://localhost:5173
    ```
+
 5. Open http://localhost:5173. Sample studios, renters and bookings are added automatically the first time the server starts on an empty database.
 
 ### Environment Variables
@@ -120,13 +128,13 @@ server/                 Express API
 
 ## Pages (12)
 
-Landing, Login, Register, Dashboard, Studios, Studio Details, Booking Calendar, New Booking, Edit Booking, Renters, Payments, Revenue and Utilization Reports. A Not Found page handles unknown addresses.
+Landing, Login, Register, Dashboard, Studios, Studio Details, Booking Calendar, New Booking, Edit Booking, Renters, Payments, Revenue and Utilization Reports. A Not Found page handles unknown addresses. A customer's booking history opens from the Studios page.
 
 ## API Documentation
 
 Base path: `/api`. Every error uses the same format: `{ "message": "Booking not found" }`. Status codes used: **200** OK, **201** Created, **400** validation or rule failure, **404** not found, **500** server error.
 
-IDs below are shortened examples.
+IDs below are shortened examples. Studios and add-ons also accept `image` and `images` (a list of base64 image data), and add-ons accept `type`.
 
 | Method | Path                                      | Purpose                                                                       | Sample request                                                                                                                   | Sample response                                                                                             |
 | ------ | ----------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -158,6 +166,8 @@ IDs below are shortened examples.
 | GET    | /payments                                 | List payments                                                                 | none                                                                                                                             | 200 `[{"id":"p1","amount":1000,"method":"gcash","renterName":"Dani Villanueva"}]`                           |
 | POST   | /payments                                 | Record a payment (cannot exceed balance due)                                  | `{"bookingId":"b9","amount":1000,"method":"gcash"}`                                                                              | 201 `{"id":"p5","amount":1000,"method":"gcash"}`                                                            |
 | DELETE | /payments/:id                             | Delete a payment                                                              | none                                                                                                                             | 200 `{"message":"Payment deleted"}`                                                                         |
+| GET    | /feedback                                 | List feedback                                                                 | none                                                                                                                             | 200 `[{"id":"f1","bookingId":"b9","rating":5,"comment":"Great room"}]`                                      |
+| POST   | /feedback                                 | Leave feedback for a completed booking (one per booking)                      | `{"bookingId":"b9","rating":5,"comment":"Great room"}`                                                                           | 201 `{"id":"f1","bookingId":"b9","rating":5}`                                                               |
 | GET    | /reports/overview                         | Totals, collected, outstanding, counts by status                              | none                                                                                                                             | 200 `{"bookings":18,"booked":31200,"collected":24500,"outstanding":6700,"overdueCount":2}`                  |
 | GET    | /reports/utilization                      | Booked vs open hours (last 14 days) and revenue per studio                    | none                                                                                                                             | 200 `[{"name":"Echo Room","bookedHours":10,"availableHours":196,"utilization":5.1,"revenue":7540}]`         |
 | GET    | /reports/revenue-by-month                 | Payments collected per month                                                  | none                                                                                                                             | 200 `[{"month":"2026-10","total":24500}]`                                                                   |
@@ -172,6 +182,9 @@ IDs below are shortened examples.
 // 400: payment above the balance
 { "message": "Only ₱1350.00 is still due on this booking" }
 
+// 400: feedback sent twice for the same booking
+{ "message": "Feedback was already sent for this booking" }
+
 // 404: unknown booking
 { "message": "Booking not found" }
 ```
@@ -181,20 +194,27 @@ IDs below are shortened examples.
 - Customer registration and login with two roles (customer and owner)
 - Hour-by-hour availability grid with double-booking prevention for studios and add-ons
 - Live price quote while filling in the booking form
-- Peak and off-peak pricing, add-on fees, and loyalty discounts
+- Peak and off-peak pricing, add-on fees, and loyalty discounts (5%, 10% or 15% based on completed bookings)
 - Booking status flow with rules (pending, confirmed, paid, completed, cancelled)
 - Partial and full payments with balance due and overdue flags
 - Owner dashboard, revenue by studio and month, and studio utilization
 - Search, filter, and sort over bookings
+- Photo galleries for studios and add-ons (the first photo is the cover)
+- Booking history for each customer, showing only their own bookings, with a detail card for each booking
+- Customer feedback (star rating and comment) after a completed booking
+- The owner calendar opens on "All studios"
 - Loading, error and empty states on every data screen, confirmation before delete, and success messages
 - Responsive layout from 375px to desktop
 
 ## Known Limitations
 
 - Payments are recorded manually. There is no real payment gateway.
-- The peak-rate start (17:00) and the 14-day utilization window are fixed in code and not editable in the app.
+- The peak-rate start (17:00) and the 14-day utilization window are fixed in code and not editable in the app. Peak hours are the same every day of the week.
 - Bookings are whole hours only.
 - Booking and pricing rules read an in-memory copy of the data that is reloaded from MongoDB after each change, so running more than one server instance at the same time is not supported.
 - There are no automated tests yet.
-- The app is not deployed. It runs locally.
-- [Add any other limitations your group knows about, for example password reset or email notifications.]
+- The client is deployed on Vercel. The API is hosted separately, and the client's `VITE_API_URL` must point to it.
+- Photos are stored inside the database records as base64 text, each limited to 2 MB, and the API accepts request bodies up to 10 MB, so large galleries make pages slower to load.
+- The "What renters say" section on the landing page still shows sample reviews. Submitted feedback is stored but not displayed yet.
+- The server does not check that feedback comes from the person who made the booking.
+- There is no password reset or email notification.
